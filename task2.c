@@ -13,14 +13,13 @@ int main(void) {
     int fd1[2], fd2[2];
     pid_t child1, child2, child3;
 
-    setbuf(stdout, NULL);  // to disable buffering
+    setbuf(stdout, NULL);
 
     if (pipe(fd1) == -1 || pipe(fd2) == -1) {
         perror("pipe");
         exit(1);
     }
 
-    // First child: cat Makefile
     if ((child1 = fork()) == 0) {
         printf("In CHILD-1 (PID=%d): executing command cat ...\n", getpid());
         close(fd1[0]);
@@ -31,7 +30,6 @@ int main(void) {
         exit(1);
     }
 
-    // Second child: head -4
     if ((child2 = fork()) == 0) {
         printf("In CHILD-2 (PID=%d): executing command head ...\n", getpid());
         close(fd1[1]);
@@ -49,7 +47,6 @@ int main(void) {
     close(fd1[0]);
     close(fd1[1]);
 
-    // Third child: wc -l
     if ((child3 = fork()) == 0) {
         printf("In CHILD-3 (PID=%d): executing command wc ...\n", getpid());
         close(fd2[1]);
@@ -63,7 +60,6 @@ int main(void) {
     close(fd2[0]);
     close(fd2[1]);
 
-    // Parent waits for all children
     int status;
     pid_t wpid;
     while ((wpid = wait(&status)) > 0) {
